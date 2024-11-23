@@ -27,3 +27,48 @@ Summary of Requirements
 * Code must compile
 * Automated tests - as in does it want me to have a CI run them? and display the result in my readme?
 * API Design and architecture should focus on meeting the functional requirements
+
+Notes on using the simulator
+* docker compose up
+* make a post request to http://localhost:8080/payments
+* with body
+```json
+{
+  "card_number": "2222405343248877",
+  "expiry_date": "04/2025",
+  "currency": "GBP",
+  "amount": 100,
+  "cvv": "123"
+}
+```
+* response we get is (200)
+```json
+{
+    "authorized": true,
+    "authorization_code": "0bb07405-6d44-4b50-a14f-7ae0beff13ad"
+}
+```
+or this body to get an example of a payment which is not authorised
+```json
+{
+  "card_number": "2222405343248112",
+  "expiry_date": "01/2026",
+  "currency": "USD",
+  "amount": 60000,
+  "cvv": "456"
+}
+```
+* response in this case (200)
+```json
+{
+    "authorized": false,
+    "authorization_code": ""
+}
+```
+* any other details provided in the body that dont match the supplied examples just get a 400
+```json
+{
+    "errorMessage": "The request supplied is not supported by the simulator"
+}
+```
+* And what if the Mock bank is down do we get a 500 server error?
