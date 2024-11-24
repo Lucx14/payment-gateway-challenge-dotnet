@@ -12,7 +12,9 @@ using FluentAssertions;
 using Moq;
 using Moq.Protected;
 
-namespace PaymentGateway.Infrastructure.Tests;
+using PaymentGateway.Infrastructure.ExternalServices.AcquiringBanks;
+
+namespace PaymentGateway.Infrastructure.Tests.ExternalServices.AcquiringBanks;
 
 public class BankSimulatorApiClientTests : IDisposable
 {

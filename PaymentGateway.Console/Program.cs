@@ -4,7 +4,7 @@ using System;
 using System.Net.Http;
 using System.Threading;
 
-using PaymentGateway.Infrastructure;
+using PaymentGateway.Infrastructure.ExternalServices.AcquiringBanks;
 
 Console.WriteLine("Testing the bank simulator is working.....");
 
