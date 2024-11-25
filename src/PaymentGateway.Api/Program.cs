@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
+using PaymentGateway.Api.Exceptions;
 using PaymentGateway.Api.Models.Requests;
 using PaymentGateway.Api.Validators;
 using PaymentGateway.Application.Interfaces;
@@ -16,11 +17,14 @@ using PaymentGateway.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(options =>
+{
+    options.Filters.Add<HttpResponseExceptionFilter>();
+});
 
 builder.Services.AddScoped<IValidator<PostPaymentRequest>, PostPaymentRequestValidator>();
 
-builder.Services.AddHttpClient<IAcquiringBankApiClient, BankSimulatorApiClient>((serviceProvider, client) =>
+builder.Services.AddHttpClient<IAcquiringBankApiClient, BankSimulatorApiClient>((_, client) =>
 {
     client.BaseAddress = new Uri("http://localhost:8080");
 });
@@ -35,8 +39,13 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
-    _ = app.UseSwagger();
-    _ = app.UseSwaggerUI();
+    app.UseSwagger();
+    app.UseSwaggerUI();
+    app.UseExceptionHandler("/error-development");
+}
+else
+{
+    app.UseExceptionHandler("/error");
 }
 
 app.UseHttpsRedirection();

@@ -6,14 +6,15 @@ using System.Threading.Tasks;
 using FluentValidation;
 using FluentValidation.Results;
 
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Hosting;
 
 using PaymentGateway.Api.Extensions;
 using PaymentGateway.Api.Models.Requests;
 using PaymentGateway.Api.Models.Responses;
 using PaymentGateway.Application.Interfaces;
-using PaymentGateway.Domain.Enums;
 
 
 namespace PaymentGateway.Api.Controllers;
@@ -53,7 +54,7 @@ public class PaymentsController : Controller
             .CreatePaymentAsync(request.ToInitiatePaymentRequest(), cancellationToken)
             .ConfigureAwait(false);
 
-        return CreatedAtAction(nameof(Create), new { id = createPaymentResult.Id }, createPaymentResult.ToPostPaymentResponse());
+        return CreatedAtAction(nameof(Get), new { id = createPaymentResult.Id }, createPaymentResult.ToPostPaymentResponse());
     }
     
     [HttpGet("{id:guid}", Name = "GetPayment")]
@@ -61,25 +62,34 @@ public class PaymentsController : Controller
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Get(Guid id, CancellationToken cancellationToken)
     {
-        var payment = await _paymentService.GetPaymentByIdAsync(id, cancellationToken).ConfigureAwait(false);
+        var getPaymentResult = await _paymentService.GetPaymentByIdAsync(id, cancellationToken).ConfigureAwait(false);
 
-        if (payment == null)
+        if (getPaymentResult == null)
         {
             return NotFound();
         }
-        
-        var getPaymentResponse = new GetPaymentResponse
-        {
-            Id = payment.Id,
-            Status = PaymentStatus.Authorized,
-            CardNumberLastFour = payment.CardNumberLastFour,
-            ExpiryMonth = payment.ExpiryMonth,
-            ExpiryYear = payment.ExpiryYear,
-            Currency = payment.Currency,
-            Amount = payment.Amount,
-        };
 
-        return Ok(getPaymentResponse);
+        return Ok(getPaymentResult.ToGetPaymentResponse());
+    }
+    
+    [Route("/error")]
+    [ApiExplorerSettings(IgnoreApi = true)]
+    public IActionResult HandleError() => Problem();
+    
+    [Route("/error-development")]
+    [ApiExplorerSettings(IgnoreApi = true)]
+    public IActionResult HandleErrorDevelopment([FromServices] IHostEnvironment hostEnvironment)
+    {
+        if (!hostEnvironment.IsDevelopment())
+        {
+            return NotFound();
+        }
+    
+        var exceptionHandlerFeature = HttpContext.Features.Get<IExceptionHandlerFeature>()!;
+    
+        return Problem(
+            detail: exceptionHandlerFeature.Error.StackTrace,
+            title: exceptionHandlerFeature.Error.Message);
     }
 
     private BadRequestObjectResult HandleValidationFailure(ValidationResult validationResult)

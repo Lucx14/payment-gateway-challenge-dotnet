@@ -16,7 +16,7 @@ public static class DtoExtensions
         return new PostPaymentResponse
         {
             Id = paymentDto.Id,
-            Status = paymentDto.Status,
+            Status = paymentDto.Status.ToString(),
             CardNumberLastFour = paymentDto.CardNumberLastFour,
             ExpiryMonth = paymentDto.ExpiryMonth,
             ExpiryYear = paymentDto.ExpiryYear,
@@ -37,6 +37,22 @@ public static class DtoExtensions
             ExpiryMonth = postPaymentRequest.ExpiryMonth,
             ExpiryYear = postPaymentRequest.ExpiryYear,
             Cvv = postPaymentRequest.Cvv,
+        };
+    }
+
+    public static GetPaymentResponse ToGetPaymentResponse(this PaymentDto paymentDto)
+    {
+        ArgumentNullException.ThrowIfNull(paymentDto);
+        
+        return new GetPaymentResponse
+        {
+            Id = paymentDto.Id,
+            Status = paymentDto.Status.ToString(),
+            CardNumberLastFour = paymentDto.CardNumberLastFour,
+            ExpiryMonth = paymentDto.ExpiryMonth,
+            ExpiryYear = paymentDto.ExpiryYear,
+            Currency = paymentDto.Currency,
+            Amount = paymentDto.Amount,
         };
     }
 }
