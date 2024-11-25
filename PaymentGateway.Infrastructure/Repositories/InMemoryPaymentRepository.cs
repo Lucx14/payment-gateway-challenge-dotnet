@@ -11,7 +11,7 @@ public class InMemoryPaymentRepository : IPaymentRepository
 {
     private readonly List<Payment> _payments = [];
 
-    public void Add(Payment payment)
+    public void CreatePayment(Payment payment)
     {
         _payments.Add(payment);
     }

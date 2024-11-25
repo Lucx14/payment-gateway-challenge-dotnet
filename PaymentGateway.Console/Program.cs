@@ -4,7 +4,10 @@ using System;
 using System.Net.Http;
 using System.Threading;
 
+using PaymentGateway.Application.Exceptions;
+using PaymentGateway.Application.Models.Requests;
 using PaymentGateway.Infrastructure.ExternalServices.AcquiringBanks;
+using PaymentGateway.Infrastructure.ExternalServices.AcquiringBanks.BankSimulator;
 
 Console.WriteLine("Testing the bank simulator is working.....");
 
@@ -12,7 +15,7 @@ using var httpClient = new HttpClient();
 httpClient.BaseAddress = new Uri("http://localhost:8080");
 var bankSimulatorClient = new BankSimulatorApiClient(httpClient);
 
-var payload = new BankSimulatorRequest
+var payload = new CreatePaymentRequest
 {
     CardNumber = "2222405343248877",
     ExpiryDate = "04/2025",

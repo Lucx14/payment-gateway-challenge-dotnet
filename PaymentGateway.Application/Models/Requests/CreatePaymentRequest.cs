@@ -1,10 +1,9 @@
-﻿namespace PaymentGateway.Api.Models.Requests;
+namespace PaymentGateway.Application.Models.Requests;
 
-public class PostPaymentRequest
+public class CreatePaymentRequest
 {
     public required string CardNumber { get; init; }
-    public required string ExpiryMonth { get; init; }
-    public required string ExpiryYear { get; init; }
+    public required string ExpiryDate { get; init; }
     public required string Currency { get; init; }
     public required int Amount { get; init; }
     public required string Cvv { get; init; }

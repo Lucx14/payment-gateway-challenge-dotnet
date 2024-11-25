@@ -6,11 +6,13 @@ namespace PaymentGateway.Domain.Entities;
 
 public class Payment
 {
-    public Guid Id { get; init; }
-    public PaymentStatus Status { get; set; }
-    public int CardNumberLastFour { get; set; }
-    public int ExpiryMonth { get; set; }
-    public int ExpiryYear { get; set; }
-    public required string Currency { get; set; }
-    public int Amount { get; set; }
+    // This is already the format we need to return to the merchant in the response from the api
+    // What else should we save in here?
+    public required Guid Id { get; init; }
+    public required PaymentStatus Status { get; set; }
+    public required string CardNumberLastFour { get; init; }
+    public required string ExpiryMonth { get; init; }
+    public required string ExpiryYear { get; init; }
+    public required string Currency { get; init; }
+    public required int Amount { get; init; }
 }

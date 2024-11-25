@@ -12,7 +12,12 @@ using FluentAssertions;
 using Moq;
 using Moq.Protected;
 
+using PaymentGateway.Application.Exceptions;
+using PaymentGateway.Application.Models.Requests;
+using PaymentGateway.Application.Models.Responses;
 using PaymentGateway.Infrastructure.ExternalServices.AcquiringBanks;
+using PaymentGateway.Infrastructure.ExternalServices.AcquiringBanks.BankSimulator;
+using PaymentGateway.Infrastructure.ExternalServices.AcquiringBanks.BankSimulator.Models;
 
 namespace PaymentGateway.Infrastructure.Tests.ExternalServices.AcquiringBanks;
 
@@ -42,14 +47,14 @@ public class BankSimulatorApiClientTests : IDisposable
         // Arrange
         const string expectedUrl = $"{BaseTestUrl}/payments";
         
-        var mockedResponse = _fixture.Build<BankSimulatorResponse>()
+        var mockedResponse = _fixture.Build<CreatePaymentResponse>()
             .With(response => response.Authorized, true)
             .With(response => response.AuthorizationCode, "mocked-code")
             .Create();
         
         using var httpResponse = CreateHttpResponse(HttpStatusCode.OK, JsonSerializer.Serialize(mockedResponse));
         
-        var testRequest = new BankSimulatorRequest
+        var testRequest = new CreatePaymentRequest
         {
             CardNumber = "mocked-number",
             ExpiryDate = "mocked-date",
@@ -80,7 +85,7 @@ public class BankSimulatorApiClientTests : IDisposable
         // Arrange
         const string expectedUrl = $"{BaseTestUrl}/payments";
         
-        var invalidRequest = new BankSimulatorRequest
+        var invalidRequest = new CreatePaymentRequest
         {
             CardNumber = "mocked-number",
             ExpiryDate = "mocked-date",
@@ -109,7 +114,7 @@ public class BankSimulatorApiClientTests : IDisposable
         // Arrange
         const string expectedUrl = $"{BaseTestUrl}/payments";
         
-        var validRequest = new BankSimulatorRequest
+        var validRequest = new CreatePaymentRequest
         {
             CardNumber = "mocked-number",
             ExpiryDate = "mocked-date",
@@ -140,7 +145,7 @@ public class BankSimulatorApiClientTests : IDisposable
         // Arrange
         const string expectedUrl = $"{BaseTestUrl}/payments";
         
-        var validRequest = new BankSimulatorRequest
+        var validRequest = new CreatePaymentRequest
         {
             CardNumber = "mocked-number",
             ExpiryDate = "mocked-date",
