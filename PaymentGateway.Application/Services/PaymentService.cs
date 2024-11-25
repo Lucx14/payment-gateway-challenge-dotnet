@@ -25,11 +25,13 @@ public class PaymentService : IPaymentService
         _acquiringBankApiClient = acquiringBankApiClient;
     }
     
-    public async Task<Payment?> GetPaymentByIdAsync(Guid paymentId, CancellationToken cancellationToken)
+    public async Task<PaymentDto?> GetPaymentByIdAsync(Guid paymentId, CancellationToken cancellationToken)
     {
-        return await Task
+        var payment = await Task
             .FromResult(_paymentRepository.GetById(paymentId))
             .ConfigureAwait(false);
+        
+        return payment?.ToPaymentDto();
     }
 
     public async Task<PaymentDto> CreatePaymentAsync(InitiatePaymentRequest initiatePaymentRequest, CancellationToken cancellationToken)
@@ -98,10 +100,10 @@ public class PaymentService : IPaymentService
     
     private static readonly Dictionary<ProviderError, PaymentStatus> ErrorStatusMap = new()
     {
+        { ProviderError.Unknown, PaymentStatus.Failed},
         { ProviderError.InvalidData, PaymentStatus.Failed },
         { ProviderError.Timeout, PaymentStatus.Failed },
         { ProviderError.ServerError, PaymentStatus.Failed },
         { ProviderError.BadRequest, PaymentStatus.Rejected }
     };
-
 }
