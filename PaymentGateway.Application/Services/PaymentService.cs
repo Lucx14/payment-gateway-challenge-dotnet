@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -33,31 +34,74 @@ public class PaymentService : IPaymentService
 
     public async Task<PaymentDto> CreatePaymentAsync(InitiatePaymentRequest initiatePaymentRequest, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(initiatePaymentRequest);
+        
+        var newPaymentId = Guid.NewGuid();
+
         try
         {
-            var createPaymentResponse = await _acquiringBankApiClient
-                .CreatePaymentAsync(initiatePaymentRequest.ToCreatePaymentRequest(), cancellationToken)
-                .ConfigureAwait(false);
-            
-            var newPayment = new Payment
+            var newPayment = _paymentRepository.CreatePayment(new Payment
             {
-                Id = Guid.NewGuid(),
-                Status = createPaymentResponse.Authorized ? PaymentStatus.Authorized : PaymentStatus.Declined,
+                Id = newPaymentId,
+                Status = PaymentStatus.Initiated,
                 CardNumberLastFour = initiatePaymentRequest.CardNumber[^4..],
                 ExpiryMonth = initiatePaymentRequest.ExpiryMonth,
                 ExpiryYear = initiatePaymentRequest.ExpiryYear,
                 Currency = initiatePaymentRequest.Currency,
                 Amount = initiatePaymentRequest.Amount,
-            };
-            
-            _paymentRepository.CreatePayment(newPayment);
-            
+            });
+
+            var createPaymentResponse = await _acquiringBankApiClient
+                .CreatePaymentAsync(initiatePaymentRequest.ToCreatePaymentRequest(), cancellationToken)
+                .ConfigureAwait(false);
+
+            newPayment.UpdateStatus(
+                createPaymentResponse.Authorized ? PaymentStatus.Authorized : PaymentStatus.Declined);
+
             return newPayment.ToPaymentDto();
         }
         catch (ProviderException ex)
         {
-            Console.WriteLine(ex);
-            throw;
+            return HandleProviderException(ex, newPaymentId);
         }
     }
+    
+    private PaymentDto HandleProviderException(ProviderException ex, Guid newPaymentId)
+    {
+        var failureStatusMapped = ErrorStatusMap.TryGetValue(ex.ProviderError, out var failureStatus);
+        
+        if (!failureStatusMapped)
+        {
+            throw new GatewayApplicationException(
+                "Gateway Error: Invalid Internal Error Mapping",
+                GatewayApplicationError.InternalServerError);
+        }
+        
+        return HandleUnprocessablePayment(newPaymentId, failureStatus);
+    }
+
+    private PaymentDto HandleUnprocessablePayment(Guid paymentId, PaymentStatus paymentStatus)
+    {
+        var payment = _paymentRepository.GetById(paymentId);
+        
+        if (payment is null)
+        {
+            throw new GatewayApplicationException(
+                "Gateway Error: Payment not found.",
+                GatewayApplicationError.InternalServerError);
+        }
+
+        payment.UpdateStatus(paymentStatus);
+
+        return payment.ToPaymentDto();
+    }
+    
+    private static readonly Dictionary<ProviderError, PaymentStatus> ErrorStatusMap = new()
+    {
+        { ProviderError.InvalidData, PaymentStatus.Failed },
+        { ProviderError.Timeout, PaymentStatus.Failed },
+        { ProviderError.ServerError, PaymentStatus.Failed },
+        { ProviderError.BadRequest, PaymentStatus.Rejected }
+    };
+
 }

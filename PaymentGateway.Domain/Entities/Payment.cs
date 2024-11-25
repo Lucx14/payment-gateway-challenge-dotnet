@@ -13,4 +13,9 @@ public class Payment
     public required string ExpiryYear { get; init; }
     public required string Currency { get; init; }
     public required int Amount { get; init; }
+
+    public void UpdateStatus(PaymentStatus status)
+    {
+        Status = status;
+    }
 }
