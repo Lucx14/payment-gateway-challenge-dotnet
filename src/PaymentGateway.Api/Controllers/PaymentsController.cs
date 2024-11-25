@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 using FluentValidation;
+using FluentValidation.Results;
 
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -33,6 +35,7 @@ public class PaymentsController : Controller
     
     [HttpPost(Name = "CreatePayment")]
     [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Create([FromBody] PostPaymentRequest request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request, nameof(request));
@@ -43,26 +46,14 @@ public class PaymentsController : Controller
 
         if (!validationResult.IsValid)
         {
-            var failureResponse = new PostPaymentResponse
-            {
-                Id = null,
-                // Do we need to convert this to string?? it shows as an enum int in swagger
-                Status = PaymentStatus.Rejected,
-                CardNumberLastFour = request.CardNumber[^4..],
-                ExpiryMonth = request.ExpiryMonth,
-                ExpiryYear = request.ExpiryYear,
-                Currency = request.Currency,
-                Amount = request.Amount,
-            };
-            
-            return Ok(failureResponse);
+            return HandleValidationFailure(validationResult);
         }
         
         var createPaymentResult = await _paymentService
             .CreatePaymentAsync(request.ToInitiatePaymentRequest(), cancellationToken)
             .ConfigureAwait(false);
-        
-        return Ok(createPaymentResult.ToPostPaymentResponse());
+
+        return CreatedAtAction(nameof(Create), new { id = createPaymentResult.Id }, createPaymentResult.ToPostPaymentResponse());
     }
     
     [HttpGet("{id:guid}", Name = "GetPayment")]
@@ -89,5 +80,24 @@ public class PaymentsController : Controller
         };
 
         return Ok(getPaymentResponse);
+    }
+
+    private BadRequestObjectResult HandleValidationFailure(ValidationResult validationResult)
+    {
+        var errorResponse = new ValidationErrorResponse(
+            "https://tools.ietf.org/html/rfc7231#section-6.5.1",
+            "Validation Error",
+            400,
+            validationResult.Errors
+                .Select(e =>
+                {
+                    var propertyName = string.IsNullOrWhiteSpace(e.PropertyName) ? "ExpiryDate" : e.PropertyName;
+                    return new ValidationError(propertyName, e.ErrorMessage);
+                })
+                .ToList()
+                .AsReadOnly()
+        );
+        
+        return BadRequest(errorResponse);
     }
 }

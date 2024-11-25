@@ -11,9 +11,10 @@ public class InMemoryPaymentRepository : IPaymentRepository
 {
     private readonly List<Payment> _payments = [];
 
-    public void CreatePayment(Payment payment)
+    public Payment CreatePayment(Payment payment)
     {
         _payments.Add(payment);
+        return payment;
     }
 
     public Payment? GetById(Guid id)

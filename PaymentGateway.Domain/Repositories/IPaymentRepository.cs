@@ -7,5 +7,6 @@ namespace PaymentGateway.Domain.Repositories;
 public interface IPaymentRepository
 {
     Payment? GetById(Guid id);
-    void CreatePayment(Payment payment);
+    
+    Payment CreatePayment(Payment payment);
 }
