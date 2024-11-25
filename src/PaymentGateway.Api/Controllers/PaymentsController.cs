@@ -2,13 +2,15 @@
 using System.Threading;
 using System.Threading.Tasks;
 
+using FluentValidation;
+
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
+using PaymentGateway.Api.Extensions;
 using PaymentGateway.Api.Models.Requests;
 using PaymentGateway.Api.Models.Responses;
 using PaymentGateway.Application.Interfaces;
-using PaymentGateway.Application.Models.Requests;
 using PaymentGateway.Domain.Enums;
 
 
@@ -19,44 +21,50 @@ namespace PaymentGateway.Api.Controllers;
 public class PaymentsController : Controller
 {
     private readonly IPaymentService _paymentService;
+    private readonly IValidator<PostPaymentRequest> _createPaymentRequestValidator;
     
-    public PaymentsController(IPaymentService paymentService)
+    public PaymentsController(
+        IPaymentService paymentService, 
+        IValidator<PostPaymentRequest> createPaymentRequestValidator)
     {
         _paymentService = paymentService;
+        _createPaymentRequestValidator = createPaymentRequestValidator;
     }
     
-    // Create Payment
     [HttpPost(Name = "CreatePayment")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     public async Task<IActionResult> Create([FromBody] PostPaymentRequest request, CancellationToken cancellationToken)
     {
-        // Validation of the request
         ArgumentNullException.ThrowIfNull(request, nameof(request));
-        
-        // API layer validates that we can process the request
-        // Service layer validates that we should process the request
-        
-        // Translate the request into a service level request 
-        var initiatePaymentRequest = new InitiatePaymentRequest
+
+        var validationResult = await _createPaymentRequestValidator
+            .ValidateAsync(request, cancellationToken)
+            .ConfigureAwait(false);
+
+        if (!validationResult.IsValid)
         {
-            Amount = request.Amount,
-            Currency = request.Currency,
-            CardNumber = request.CardNumber,
-            ExpiryMonth = request.ExpiryMonth,
-            ExpiryYear = request.ExpiryYear,
-            Cvv = request.Cvv,
-        };
+            var failureResponse = new PostPaymentResponse
+            {
+                Id = null,
+                // Do we need to convert this to string?? it shows as an enum int in swagger
+                Status = PaymentStatus.Rejected,
+                CardNumberLastFour = request.CardNumber[^4..],
+                ExpiryMonth = request.ExpiryMonth,
+                ExpiryYear = request.ExpiryYear,
+                Currency = request.Currency,
+                Amount = request.Amount,
+            };
+            
+            return Ok(failureResponse);
+        }
         
-        // This should return a dto back to the api level really
-        var result = await _paymentService
-            .CreatePaymentAsync(initiatePaymentRequest, cancellationToken)
+        var createPaymentResult = await _paymentService
+            .CreatePaymentAsync(request.ToInitiatePaymentRequest(), cancellationToken)
             .ConfigureAwait(false);
         
-        // Translate the dto into a postPaymentResponse
-        return Ok(result);
+        return Ok(createPaymentResult.ToPostPaymentResponse());
     }
     
-    // Get Payment
     [HttpGet("{id:guid}", Name = "GetPayment")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]

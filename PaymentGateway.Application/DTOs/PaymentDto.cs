@@ -2,12 +2,12 @@ using System;
 
 using PaymentGateway.Domain.Enums;
 
-namespace PaymentGateway.Domain.Entities;
+namespace PaymentGateway.Application.DTOs;
 
-public class Payment
+public record PaymentDto
 {
-    public required Guid Id { get; init; }
-    public required PaymentStatus Status { get; set; }
+    public required Guid? Id { get; init; }
+    public required PaymentStatus Status { get; init; }
     public required string CardNumberLastFour { get; init; }
     public required string ExpiryMonth { get; init; }
     public required string ExpiryYear { get; init; }
