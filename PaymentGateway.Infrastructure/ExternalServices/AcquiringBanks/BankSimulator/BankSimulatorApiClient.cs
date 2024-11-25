@@ -33,16 +33,18 @@ public class BankSimulatorApiClient : IAcquiringBankApiClient
         _httpClient.Timeout = TimeSpan.FromSeconds(10);
     }
 
-    public async Task<CreatePaymentResponse> CreatePaymentAsync(CreatePaymentRequest payload, CancellationToken cancellationToken)
+    public async Task<CreatePaymentResponse> CreatePaymentAsync(CreatePaymentRequest createPaymentRequest, CancellationToken cancellationToken)
     {
         var uri = new Uri(_httpClient.BaseAddress!, "payments");
-        var body = JsonSerializer.Serialize(payload, _jsonSerializerOptions);
+        var body = JsonSerializer.Serialize(createPaymentRequest, _jsonSerializerOptions);
         
         using var content = new StringContent(body, Encoding.UTF8, "application/json");
 
         try
         {
-            var response = await _httpClient.PostAsync(uri, content, cancellationToken).ConfigureAwait(false);
+            var response = await _httpClient
+                .PostAsync(uri, content, cancellationToken)
+                .ConfigureAwait(false);
 
             response.EnsureSuccessStatusCode();
 
