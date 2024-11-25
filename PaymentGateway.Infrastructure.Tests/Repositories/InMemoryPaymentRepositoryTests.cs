@@ -3,6 +3,7 @@ using System;
 using FluentAssertions;
 
 using PaymentGateway.Domain.Entities;
+using PaymentGateway.Domain.Enums;
 using PaymentGateway.Infrastructure.Repositories;
 
 namespace PaymentGateway.Infrastructure.Tests.Repositories;
@@ -15,10 +16,19 @@ public class InMemoryPaymentRepositoryTests
     public void AddShouldStorePayment()
     {
         // Arrange
-        var payment = new Payment { Id = Guid.NewGuid(), Currency = "GBP"};
+        var payment = new Payment
+        {
+            Id = Guid.NewGuid(),
+            Status = PaymentStatus.Authorized,
+            Amount = 100,
+            ExpiryMonth = "12",
+            ExpiryYear = "2021",
+            CardNumberLastFour = "1233",
+            Currency = "GBP"
+        };
 
         // Act
-        _repository.Add(payment);
+        _repository.CreatePayment(payment);
 
         // Assert
         var retrievedPayment = _repository.GetById(payment.Id);

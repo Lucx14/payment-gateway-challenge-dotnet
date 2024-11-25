@@ -1,5 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
+    <ProjectReference Include="..\PaymentGateway.Application\PaymentGateway.Application.csproj" />
     <ProjectReference Include="..\PaymentGateway.Domain\PaymentGateway.Domain.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="ExternalServices\AcquiringBanks\BankSimulator\Extensions\" />
   </ItemGroup>
 </Project>
