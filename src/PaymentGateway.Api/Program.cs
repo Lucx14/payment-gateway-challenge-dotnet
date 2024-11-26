@@ -5,7 +5,9 @@ using FluentValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 
+using PaymentGateway.Api.Configuration;
 using PaymentGateway.Api.Exceptions;
 using PaymentGateway.Api.Models.Requests;
 using PaymentGateway.Api.Validators;
@@ -24,9 +26,12 @@ builder.Services.AddControllers(options =>
 
 builder.Services.AddScoped<IValidator<PostPaymentRequest>, PostPaymentRequestValidator>();
 
-builder.Services.AddHttpClient<IAcquiringBankApiClient, BankSimulatorApiClient>((_, client) =>
+builder.Services.Configure<BankSimulatorApiOptions>(builder.Configuration.GetSection("BankSimulatorApi"));
+
+builder.Services.AddHttpClient<IAcquiringBankApiClient, BankSimulatorApiClient>((serviceProvider, client) =>
 {
-    client.BaseAddress = new Uri("http://localhost:8080");
+    var options = serviceProvider.GetRequiredService<IOptions<BankSimulatorApiOptions>>().Value;
+    client.BaseAddress = new Uri(options.BaseAddress);
 });
 
 builder.Services.AddSingleton<IPaymentRepository, InMemoryPaymentRepository>();
@@ -55,3 +60,7 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+
+// Exposed for integration testing
+public partial class Program { }
