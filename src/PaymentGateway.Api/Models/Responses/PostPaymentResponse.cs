@@ -1,7 +1,5 @@
 ﻿using System;
 
-using PaymentGateway.Domain.Enums;
-
 namespace PaymentGateway.Api.Models.Responses;
 
 public class PostPaymentResponse

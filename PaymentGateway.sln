@@ -9,15 +9,21 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentGateway.Api", "src\P
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "test", "test", "{1EF69307-274F-458E-BBE8-4D390512A8C6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentGateway.Api.Tests", "test\PaymentGateway.Api.Tests\PaymentGateway.Api.Tests.csproj", "{3A92D8D6-0359-4752-91AE-D8A59622518A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentGateway.Infrastructure", "src\PaymentGateway.Infrastructure\PaymentGateway.Infrastructure.csproj", "{5A266AD7-B2D9-46A1-8812-B367BADBD0BC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentGateway.Infrastructure", "PaymentGateway.Infrastructure\PaymentGateway.Infrastructure.csproj", "{5A266AD7-B2D9-46A1-8812-B367BADBD0BC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentGateway.Infrastructure.Tests", "test\PaymentGateway.Infrastructure.Tests\PaymentGateway.Infrastructure.Tests.csproj", "{EF76C9E7-88C2-4BAD-9746-6D101E6CA464}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentGateway.Infrastructure.Tests", "PaymentGateway.Infrastructure.Tests\PaymentGateway.Infrastructure.Tests.csproj", "{EF76C9E7-88C2-4BAD-9746-6D101E6CA464}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentGateway.Domain", "src\PaymentGateway.Domain\PaymentGateway.Domain.csproj", "{C9916AF3-BBE5-4BF9-B868-BF4DF812FB2C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentGateway.Domain", "PaymentGateway.Domain\PaymentGateway.Domain.csproj", "{C9916AF3-BBE5-4BF9-B868-BF4DF812FB2C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentGateway.Application", "src\PaymentGateway.Application\PaymentGateway.Application.csproj", "{D5ABC29A-E9CC-4012-8867-AD4D976E946C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentGateway.Application", "PaymentGateway.Application\PaymentGateway.Application.csproj", "{D5ABC29A-E9CC-4012-8867-AD4D976E946C}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IntegrationTests", "IntegrationTests", "{FCD38341-8135-40B5-82D9-1F5EE54F010A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentGateway.Integration.Tests", "test\PaymentGateway.Integration.Tests\PaymentGateway.Integration.Tests.csproj", "{B098AA71-3502-4897-80C1-E1586608630B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentGateway.Application.Tests", "PaymentGateway.Application.Tests\PaymentGateway.Application.Tests.csproj", "{DE0AC534-EE37-4A1C-984A-1BFCA2A2CB6C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaymentGateway.Domain.Tests", "PaymentGateway.Domain.Tests\PaymentGateway.Domain.Tests.csproj", "{63503D01-CF79-4008-916B-543A3C658055}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,10 +38,6 @@ Global
 		{3CD9AAA2-2097-4874-9C40-FFDE26EE8E43}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3CD9AAA2-2097-4874-9C40-FFDE26EE8E43}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3CD9AAA2-2097-4874-9C40-FFDE26EE8E43}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3A92D8D6-0359-4752-91AE-D8A59622518A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3A92D8D6-0359-4752-91AE-D8A59622518A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3A92D8D6-0359-4752-91AE-D8A59622518A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3A92D8D6-0359-4752-91AE-D8A59622518A}.Release|Any CPU.Build.0 = Release|Any CPU
 		{5A266AD7-B2D9-46A1-8812-B367BADBD0BC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{5A266AD7-B2D9-46A1-8812-B367BADBD0BC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5A266AD7-B2D9-46A1-8812-B367BADBD0BC}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -52,13 +54,28 @@ Global
 		{D5ABC29A-E9CC-4012-8867-AD4D976E946C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D5ABC29A-E9CC-4012-8867-AD4D976E946C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D5ABC29A-E9CC-4012-8867-AD4D976E946C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B098AA71-3502-4897-80C1-E1586608630B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B098AA71-3502-4897-80C1-E1586608630B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B098AA71-3502-4897-80C1-E1586608630B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B098AA71-3502-4897-80C1-E1586608630B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE0AC534-EE37-4A1C-984A-1BFCA2A2CB6C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE0AC534-EE37-4A1C-984A-1BFCA2A2CB6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE0AC534-EE37-4A1C-984A-1BFCA2A2CB6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE0AC534-EE37-4A1C-984A-1BFCA2A2CB6C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{63503D01-CF79-4008-916B-543A3C658055}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{63503D01-CF79-4008-916B-543A3C658055}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{63503D01-CF79-4008-916B-543A3C658055}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{63503D01-CF79-4008-916B-543A3C658055}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{3CD9AAA2-2097-4874-9C40-FFDE26EE8E43} = {F36BD266-CD75-4438-9BF9-CD91CDB18F2B}
-		{3A92D8D6-0359-4752-91AE-D8A59622518A} = {1EF69307-274F-458E-BBE8-4D390512A8C6}
 		{5A266AD7-B2D9-46A1-8812-B367BADBD0BC} = {F36BD266-CD75-4438-9BF9-CD91CDB18F2B}
 		{EF76C9E7-88C2-4BAD-9746-6D101E6CA464} = {1EF69307-274F-458E-BBE8-4D390512A8C6}
 		{C9916AF3-BBE5-4BF9-B868-BF4DF812FB2C} = {F36BD266-CD75-4438-9BF9-CD91CDB18F2B}
 		{D5ABC29A-E9CC-4012-8867-AD4D976E946C} = {F36BD266-CD75-4438-9BF9-CD91CDB18F2B}
+		{FCD38341-8135-40B5-82D9-1F5EE54F010A} = {1EF69307-274F-458E-BBE8-4D390512A8C6}
+		{B098AA71-3502-4897-80C1-E1586608630B} = {FCD38341-8135-40B5-82D9-1F5EE54F010A}
+		{DE0AC534-EE37-4A1C-984A-1BFCA2A2CB6C} = {1EF69307-274F-458E-BBE8-4D390512A8C6}
+		{63503D01-CF79-4008-916B-543A3C658055} = {1EF69307-274F-458E-BBE8-4D390512A8C6}
 	EndGlobalSection
 EndGlobal
