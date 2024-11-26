@@ -1,4 +1,6 @@
-﻿using PaymentGateway.Domain.Entities;
+﻿using System;
+
+using PaymentGateway.Domain.Entities;
 using PaymentGateway.Domain.Enums;
 
 namespace PaymentGateway.Domain.Tests;
