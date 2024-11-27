@@ -4,7 +4,7 @@ namespace PaymentGateway.Api.Models.Responses;
 
 public class PostPaymentResponse
 {
-    public required Guid? Id { get; init; }
+    public required Guid Id { get; init; }
     public required string Status { get; init; }
     public required string CardNumberLastFour { get; init; }
     public required string ExpiryMonth { get; init; }

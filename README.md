@@ -1,6 +1,6 @@
 # Payment Gateway Test solution
 
-Initial thoughts on structure:
+## Initial thoughts on structure:
 * Do not over-engineer the solution
 * Use both unit testing and integration testing to demonstrate understanding of both, use Test containers?
 * split the project into a nice domain driven design using an application layer an api layer and infrastructure layer maybe split a host layer out too?
@@ -11,64 +11,53 @@ Initial thoughts on structure:
 * Should I enforce code analysis in the build for good code quality?
 * Have a think about what is the core domain model in this project
 
-Summary of Requirements
-* The payment Gateway is an api that a merchant will use to create payments
-* Store card information
-* need to make (Api requests I think) to the acquiring bank (mocked with docker)
-* Fully test the payment flow
-* A merchant should be able to process a payment through the payment gateway and receive one of the following types of response:
-  * Authorized - the payment was authorized by the call to the acquiring bank
-  * Declined - the payment was declined by the call to the acquiring bank
-  * Rejected - No payment could be created as invalid information was supplied to the payment gateway, and therefore it has rejected the request without calling the acquiring bank
-* A merchant should be able to retrieve the details of a previously made payment
-* Validation of request from merchant - should I use library Fluent Validation maybe?
-* Requirements make clear I can use a test in memory db instead of a real one
-* Good documentation
-* Code must compile
-* Automated tests - as in does it want me to have a CI run them? and display the result in my readme?
-* API Design and architecture should focus on meeting the functional requirements
+## Summary of Requirements
+* A merchant can process a payment using card A and get an Authorized payment ✅
+* A merchant can process a payment using card B and get a Declined payment ✅
+* A merchant can process a payment with invalid Info and get a Rejected Payment ✅
+* A merchant can retrieve the details of a previously made payment ✅
+* Payment gateway performs validation on the merchants request ✅
+* Persistence: Use in memory repository ✅
+* Provide Documentation in a Readme ✅
+* Code can compile ✅
+* Code is covered by tests ✅
+* Code is simple and maintainable ✅
 
-Notes on using the simulator
-* docker compose up
-* make a post request to http://localhost:8080/payments
-* with body
-```json
+## Key design considerations and assumption
+* Introduce some **centralised package & build management** for simpler maintenance & bump to latest version of dotnet (Intention is to turn on all code quality tags, however as im under time pressure ill leave these off for now)
+* I want to follow some good architectural practices with a focus on **DDD**. I wanted to have a core central domain that has no dependencies. An API later, an application layer for services, an infrastructure layer for external apis and repositories
+* **Error handling** - I considered using a Result pattern for understood errors however in the interests of time and simplicity I chose to use exception handling through my project layers. I have given each layer an exception type with internal error types these are used to handle expected errors, any unexpected exceptions will be caught by the apps global error handling to be returned as a problem response
+* My **Core Domain entity** is the Payment (I was not sure if the Authorization code should be stored in this entity, for now I chose to leave it out as im not totally sure what we would use it for, also I assume it is sensitive data and so would need to be encrypted anyway)
+* For the **PaymentStatus** I wanted to represent state before the request had been made to the Acquiring bank and also a failure status that represents problems with the external service so it might be down or something so for this implementation the payment is persisted but in a failed status
+* For the **Persistence** to make unit testing easy and so that the project can easily switch in a real db I extracted an interface for the Repository, the interface exists at the domain level with the concrete implementation at the infrastructure level.
+* The InMemory Db is registered as a singleton (because it is in memory) if we proceed to switch into a real db this will be scoped.
+* The **Application layer** holds the Service which the api will call and this service co-ordinates the creation of the payment with call to external service and persistence via interfaces injected to the constructor for easy unit testing and mocking
+* Each layer is separated with its own request and response models and DTOs
+* I took a decision to represent the **Card details** as strings and not ints as they are not to be used for math operations so it feels more appropriate to represent these fields as strings
+* To perform **Request validation** at the controller level I decided to use **Fluent validation** as it is a nice library and easy to use making the validation in the controller look quite clean and simple, if validation fails I return a 400 Bad request with a list of the validation errors
+* **Key design decision**: save a version of the payment in the Db in status Initiated before we call the Acquiring bank, if that call fails then update the payment status to Failed, This means we can better communicate what happened to the payment to the merchant.
+
+## Instructions to run the project
+* Run docker compose up to start the bank simulator
+* Build & run the Api project
+* Use Swagger or postman to send in requests - example
+```
+http://localhost:5067/api/Payments
 {
-  "card_number": "2222405343248877",
-  "expiry_date": "04/2025",
-  "currency": "GBP",
-  "amount": 100,
-  "cvv": "123"
+"cardNumber": "2222405343248877",
+"expiryMonth": "04",
+"expiryYear": "2025",
+"currency": "GBP",
+"amount": 100,
+"cvv": "123"
 }
 ```
-* response we get is (200)
-```json
-{
-    "authorized": true,
-    "authorization_code": "0bb07405-6d44-4b50-a14f-7ae0beff13ad"
-}
-```
-or this body to get an example of a payment which is not authorised
-```json
-{
-  "card_number": "2222405343248112",
-  "expiry_date": "01/2026",
-  "currency": "USD",
-  "amount": 60000,
-  "cvv": "456"
-}
-```
-* response in this case (200)
-```json
-{
-    "authorized": false,
-    "authorization_code": ""
-}
-```
-* any other details provided in the body that dont match the supplied examples just get a 400
-```json
-{
-    "errorMessage": "The request supplied is not supported by the simulator"
-}
-```
-* And what if the Mock bank is down do we get a 500 server error?
+
+## Future considerations
+* can I improve the global error handling - for this I followed the microsoft docs, I think there is a better way to do it
+* what do I do with the authorization code?
+* introduce a real db
+* add to unit and integration tests
+* Turn on all code quality enforcement and fix any issues
+* Run tests in CI
+* Maybe use test containers library for the integration testing
